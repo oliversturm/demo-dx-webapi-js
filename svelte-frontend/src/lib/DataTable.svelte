@@ -1,12 +1,13 @@
 <script>
 	export let dataSource;
 	export let fields;
+	export let schema = {};
 </script>
 
 <table class="border-separate w-full">
 	<tr>
 		{#each Object.keys(fields) as f}
-			<th class={fields[f].class}>{f}</th>
+			<th class={fields[f].class}>{schema[f] || f}</th>
 		{/each}
 	</tr>
 	{#await dataSource}

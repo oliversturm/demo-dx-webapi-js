@@ -1,5 +1,11 @@
-﻿<?xml version="1.0" ?>
+﻿<?xml version="1.0"?>
 <Application Title="XAFApp">
-  <Views>
-  </Views>
+  <BOModel>
+    <Class Name="XAFApp.Module.BusinessObjects.SaleProduct">
+      <OwnMembers>
+        <Member Name="Name" Caption="Product Name" />
+        <Member Name="Price" Caption="Product Price" />
+      </OwnMembers>
+    </Class>
+  </BOModel>
 </Application>
