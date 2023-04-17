@@ -1,8 +1,10 @@
 <script>
 	import DataTable from '$lib/DataTable.svelte';
+	import { displayStateChanged } from '$lib/dataLoading.js';
+	import { page } from '$app/stores';
 
 	export let data;
-	$: ({ dataSource, schema, error } = data);
+	$: ({ dataSource, schema, displayState, error } = data);
 
 	const fields = {
 		Name: { class: 'text-left' },
@@ -19,7 +21,13 @@
 {#if error}
 	<div class="error">{error}</div>
 {:else}
-	<DataTable {dataSource} {fields} {schema} />
+	<DataTable
+		{dataSource}
+		{fields}
+		{schema}
+		{displayState}
+		on:displayStateChanged={displayStateChanged($page.url.pathname)}
+	/>
 {/if}
 
 <style lang="postcss">

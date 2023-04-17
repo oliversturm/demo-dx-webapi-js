@@ -1,13 +1,32 @@
 <script>
+	import { createEventDispatcher } from 'svelte';
+
+	const dispatch = createEventDispatcher();
+	const refresh = (newState) => {
+		dispatch('displayStateChanged', newState);
+	};
+
 	export let dataSource;
 	export let fields;
 	export let schema = {};
+	export let displayState = {
+		sort: undefined,
+		desc: false
+	};
+
+	const headerClick = (field) => () => {
+		const newSort = field;
+		const newDesc = displayState.sort === newSort ? !displayState.desc : false;
+		refresh({ ...displayState, sort: newSort, desc: newDesc });
+	};
 </script>
 
 <table class="border-separate w-full">
 	<tr>
 		{#each Object.keys(fields) as f}
-			<th class={fields[f].class}>{schema[f] || f}</th>
+			<th class={fields[f].class} on:click={headerClick(f)}
+				>{schema[f] || f} {displayState.sort === f ? (displayState.desc ? '↓' : '↑') : ''}</th
+			>
 		{/each}
 	</tr>
 	{#await dataSource}
