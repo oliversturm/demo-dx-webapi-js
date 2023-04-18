@@ -7,8 +7,8 @@
 	$: ({ dataSource, schema, displayState, error } = data);
 
 	const fields = {
-		Name: { class: 'text-left' },
-		Price: { class: 'text-right' }
+		Name: { class: 'text-left', filter: 'string' },
+		Price: { class: 'text-right', filter: 'number' }
 	};
 
 	const classCaptionPlaceholder = 'Sale Products';

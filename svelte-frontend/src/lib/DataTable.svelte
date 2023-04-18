@@ -1,5 +1,6 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
+	import FilterEditor from './FilterEditor.svelte';
 
 	const dispatch = createEventDispatcher();
 	const refresh = (newState) => {
@@ -11,7 +12,8 @@
 	export let schema = {};
 	export let displayState = {
 		sort: undefined,
-		desc: false
+		desc: false,
+		filters: {}
 	};
 
 	const headerClick = (field) => () => {
@@ -19,6 +21,20 @@
 		const newDesc = displayState.sort === newSort ? !displayState.desc : false;
 		refresh({ ...displayState, sort: newSort, desc: newDesc });
 	};
+
+	const newFilterValue =
+		(fieldName) =>
+		({ detail: newValue }) => {
+			refresh({
+				...displayState,
+				filters: {
+					...displayState.filters,
+					// Set the value for this field's filter, keeping
+					// the pre-configured filter type
+					[fieldName]: { filter: fields[fieldName].filter, value: newValue }
+				}
+			});
+		};
 </script>
 
 <table class="border-separate w-full">
@@ -27,6 +43,21 @@
 			<th class={fields[f].class} on:click={headerClick(f)}
 				>{schema[f] || f} {displayState.sort === f ? (displayState.desc ? '↓' : '↑') : ''}</th
 			>
+		{/each}
+	</tr>
+	<tr class="filterRow">
+		{#each Object.keys(fields) as f}
+			{@const field = fields[f]}
+			{@const filter = field.filter}
+			<td class={field.class}>
+				{#if filter && filter !== 'none'}
+					<FilterEditor
+						{filter}
+						value={displayState.filters[f]?.value}
+						on:newValueConfirmed={newFilterValue(f)}
+					/>
+				{/if}
+			</td>
 		{/each}
 	</tr>
 	{#await dataSource}
@@ -82,5 +113,8 @@
 	}
 	tr.error {
 		@apply bg-red-200 font-bold;
+	}
+	tr.filterRow > td {
+		@apply bg-red-200;
 	}
 </style>
