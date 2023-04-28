@@ -35,7 +35,9 @@
 		</tr>
 	</table>
 	{#if form?.error}
-		<div class="bg-red-200 rounded w-full p-2 m-2">{form.error}</div>
+		<div class="bg-red-200 rounded w-full p-2 m-2 whitespace-pre-line">
+			{form.error}
+		</div>
 	{/if}
 	<div class="flex mt-4">
 		<button class="ml-auto bg-green-200 px-4 py-1 rounded hover:bg-red-200" type="submit">
