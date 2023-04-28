@@ -27,6 +27,7 @@
 		{schema}
 		{displayState}
 		on:displayStateChanged={displayStateChanged($page.url.pathname)}
+		editBaseUrl="/saleProducts/edit"
 	/>
 {/if}
 

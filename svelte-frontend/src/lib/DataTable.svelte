@@ -15,6 +15,7 @@
 		desc: false,
 		filters: {}
 	};
+	export let editBaseUrl;
 
 	const headerClick = (field) => () => {
 		const newSort = field;
@@ -44,6 +45,11 @@
 				>{schema[f] || f} {displayState.sort === f ? (displayState.desc ? '↓' : '↑') : ''}</th
 			>
 		{/each}
+		<th class="action">
+			{#if editBaseUrl}
+				<a href={editBaseUrl} alt="Create"><span class="fa fa-star-o" /></a>
+			{/if}
+		</th>
 	</tr>
 	<tr class="filterRow">
 		{#each Object.keys(fields) as f}
@@ -59,6 +65,7 @@
 				{/if}
 			</td>
 		{/each}
+		<td class="action" />
 	</tr>
 	{#await dataSource}
 		<tr class="placeholder"><td colspan="2">Waiting for data</td></tr>
@@ -69,6 +76,13 @@
 					{#each Object.keys(fields) as f}
 						<td class={fields[f].class}>{item[f]}</td>
 					{/each}
+					<td class="action">
+						{#if editBaseUrl}
+							<a href="{editBaseUrl}/{item[schema['$$idField']]}" alt="Edit"
+								><span class="fa fa-edit" /></a
+							>
+						{/if}
+					</td>
 				</tr>
 			{:else}
 				<tr class="placeholder empty">
@@ -116,5 +130,11 @@
 	}
 	tr.filterRow > td {
 		@apply bg-red-200;
+	}
+	.action {
+		@apply bg-green-200 text-center;
+	}
+	.action a {
+		@apply border-2 rounded bg-white px-2 py-0.5 hover:bg-orange-200;
 	}
 </style>
