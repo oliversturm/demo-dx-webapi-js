@@ -8,12 +8,12 @@ namespace XAFApp.Module.BusinessObjects {
     public SaleProduct() {
     }
 
-    [RuleUniqueValue(DefaultContexts.Save)]
-    [RuleRequiredField(DefaultContexts.Save)]
+    [RuleUniqueValue]
+    [RuleRequiredField]
     public virtual string Name { get; set; }
 
-    [RuleRequiredField(DefaultContexts.Save)]
-    [RuleValueComparison(DefaultContexts.Save, ValueComparisonType.GreaterThan, 0)]
+    [RuleRequiredField]
+    [RuleValueComparison(ValueComparisonType.GreaterThan, 0)]
     public virtual decimal? Price { get; set; }
   }
 }
