@@ -13,8 +13,6 @@ using XAFApp.Module.BusinessObjects;
 using DevExpress.Persistent.BaseImpl.EF;
 using DevExpress.Persistent.BaseImpl.EF.PermissionPolicy;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -77,19 +75,19 @@ public class Startup {
     authentication
         .AddCookie(options => {
           options.LoginPath = "/LoginPage";
-        })
-        .AddJwtBearer(options => {
-          options.TokenValidationParameters = new TokenValidationParameters()
-          {
-            ValidIssuer = Configuration["Authentication:Jwt:Issuer"],
-            ValidAudience = Configuration["Authentication:Jwt:Audience"],
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Authentication:Jwt:IssuerSigningKey"]))
-          };
         });
+    // .AddJwtBearer(options => {
+    //   options.TokenValidationParameters = new TokenValidationParameters()
+    //   {
+    //     ValidIssuer = Configuration["Authentication:Jwt:Issuer"],
+    //     ValidAudience = Configuration["Authentication:Jwt:Audience"],
+    //     ValidateIssuerSigningKey = true,
+    //     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Authentication:Jwt:IssuerSigningKey"]))
+    //   };
+    // });
     services.AddAuthorization(options => {
       options.DefaultPolicy = new AuthorizationPolicyBuilder(
-          JwtBearerDefaults.AuthenticationScheme)
+          CookieAuthenticationDefaults.AuthenticationScheme)
               .RequireAuthenticatedUser()
               .RequireXafAuthentication()
               .Build();
