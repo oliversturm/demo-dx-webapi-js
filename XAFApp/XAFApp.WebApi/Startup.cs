@@ -56,7 +56,7 @@ public class Startup {
         };
       })
       .AddCookie(options => {
-        // options.Cookie.Name = "XAFDemoAppCookie";
+        // options.Cookie.Name = "XAFAppCookie";
         // options.Cookie.HttpOnly = true;
         // options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
         // options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
