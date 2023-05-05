@@ -9,16 +9,18 @@ using Microsoft.EntityFrameworkCore;
 namespace XAFApp.WebApi.Core;
 
 public sealed class ObjectSpaceProviderFactory : IObjectSpaceProviderFactory {
-    readonly ITypesInfo typesInfo;
-    readonly IDbContextFactory<XAFApp.Module.BusinessObjects.XAFAppEFCoreDbContext> dbFactory;
+  readonly ISecurityStrategyBase security;
+  readonly ITypesInfo typesInfo;
+  readonly IDbContextFactory<XAFApp.Module.BusinessObjects.XAFAppEFCoreDbContext> dbFactory;
 
-    public ObjectSpaceProviderFactory(ITypesInfo typesInfo, IDbContextFactory<XAFApp.Module.BusinessObjects.XAFAppEFCoreDbContext> dbFactory) {
-        this.typesInfo = typesInfo;
-        this.dbFactory = dbFactory;
-    }
+  public ObjectSpaceProviderFactory(ISecurityStrategyBase security, ITypesInfo typesInfo, IDbContextFactory<XAFApp.Module.BusinessObjects.XAFAppEFCoreDbContext> dbFactory) {
+    this.security = security;
+    this.typesInfo = typesInfo;
+    this.dbFactory = dbFactory;
+  }
 
-    IEnumerable<IObjectSpaceProvider> IObjectSpaceProviderFactory.CreateObjectSpaceProviders() {
-        yield return new EFCoreObjectSpaceProvider<XAFApp.Module.BusinessObjects.XAFAppEFCoreDbContext>(dbFactory, typesInfo);
-        yield return new NonPersistentObjectSpaceProvider(typesInfo, null);
-    }
+  IEnumerable<IObjectSpaceProvider> IObjectSpaceProviderFactory.CreateObjectSpaceProviders() {
+    yield return new SecuredEFCoreObjectSpaceProvider<XAFApp.Module.BusinessObjects.XAFAppEFCoreDbContext>((ISelectDataSecurityProvider)security, dbFactory, typesInfo);
+    yield return new NonPersistentObjectSpaceProvider(typesInfo, null);
+  }
 }
