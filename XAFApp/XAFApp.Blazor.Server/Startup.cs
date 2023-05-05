@@ -81,11 +81,9 @@ public class Startup {
         .AddJwtBearer(options => {
           options.TokenValidationParameters = new TokenValidationParameters()
           {
+            ValidIssuer = Configuration["Authentication:Jwt:Issuer"],
+            ValidAudience = Configuration["Authentication:Jwt:Audience"],
             ValidateIssuerSigningKey = true,
-            //ValidIssuer = Configuration["Authentication:Jwt:Issuer"],
-            //ValidAudience = Configuration["Authentication:Jwt:Audience"],
-            ValidateIssuer = false,
-            ValidateAudience = false,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Authentication:Jwt:IssuerSigningKey"]))
           };
         });

@@ -51,6 +51,7 @@ public class Startup {
         {
           ValidIssuer = Configuration["Authentication:Jwt:Issuer"],
           ValidAudience = Configuration["Authentication:Jwt:Audience"],
+          ValidateIssuerSigningKey = true,
           IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Authentication:Jwt:IssuerSigningKey"]))
         };
       })
