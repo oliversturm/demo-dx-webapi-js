@@ -76,15 +76,6 @@ public class Startup {
         .AddCookie(options => {
           options.LoginPath = "/LoginPage";
         });
-    // .AddJwtBearer(options => {
-    //   options.TokenValidationParameters = new TokenValidationParameters()
-    //   {
-    //     ValidIssuer = Configuration["Authentication:Jwt:Issuer"],
-    //     ValidAudience = Configuration["Authentication:Jwt:Audience"],
-    //     ValidateIssuerSigningKey = true,
-    //     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Authentication:Jwt:IssuerSigningKey"]))
-    //   };
-    // });
     services.AddAuthorization(options => {
       options.DefaultPolicy = new AuthorizationPolicyBuilder(
           CookieAuthenticationDefaults.AuthenticationScheme)
