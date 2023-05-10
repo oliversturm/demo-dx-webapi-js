@@ -26,7 +26,7 @@ export async function loadData(fetch, currentUrl, shortTypeName, longTypeName) {
 	const odataUrl = `http://webapi:5273/api/odata/${shortTypeName}`;
 	const fetchUrl = `${odataUrl}${queryString}`;
 
-	const dataSource = fetch(fetchUrl)
+	const dataSource = fetch(fetchUrl, { redirect: 'manual' })
 		.then((res) => {
 			if (res.ok) return res;
 			throw new Error(`HTTP error, status: ${res.status}`);
