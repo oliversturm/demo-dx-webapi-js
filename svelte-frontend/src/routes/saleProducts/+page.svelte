@@ -33,6 +33,6 @@
 
 <style lang="postcss">
 	.error {
-		@apply font-bold border bg-red-200 p-2 rounded;
+		@apply font-bold border bg-red-200 p-2 mt-4 rounded;
 	}
 </style>

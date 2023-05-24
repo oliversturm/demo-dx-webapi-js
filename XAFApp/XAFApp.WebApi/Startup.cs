@@ -7,6 +7,16 @@ using DevExpress.ExpressApp.Core;
 using XAFApp.WebApi.Core;
 using DevExpress.ExpressApp.AspNetCore.WebApi;
 using Antlr4.StringTemplate;
+using DevExpress.ExpressApp.Security.Authentication.ClientServer;
+using XAFApp.WebApi.Security;
+using DevExpress.Persistent.BaseImpl.EF.PermissionPolicy;
+using DevExpress.ExpressApp.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using XAFApp.Module.BusinessObjects;
 
 namespace XAFApp.WebApi;
 
@@ -24,6 +34,48 @@ public class Startup {
         .AddScoped<IObjectSpaceProviderFactory, ObjectSpaceProviderFactory>()
         .AddSingleton<IWebApiApplicationSetup, WebApiApplicationSetup>();
 
+    services.AddXafAspNetCoreSecurity(Configuration, options => {
+      options.RoleType = typeof(PermissionPolicyRole);
+      options.UserType = typeof(ApplicationUser);
+      options.UserLoginInfoType = typeof(ApplicationUserLoginInfo);
+      // in XPO applications, uncomment the following line
+      // options.Events.OnSecurityStrategyCreated = securityStrategy => ((SecurityStrategy)securityStrategy).RegisterXPOAdapterProviders();
+      options.SupportNavigationPermissionsForTypes = false;
+    })
+    .AddAuthenticationStandard(options => {
+      options.IsSupportChangePassword = true;
+    });
+    services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+      .AddJwtBearer(options => {
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+          ValidIssuer = Configuration["Authentication:Jwt:Issuer"],
+          ValidAudience = Configuration["Authentication:Jwt:Audience"],
+          ValidateIssuerSigningKey = true,
+          IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Authentication:Jwt:IssuerSigningKey"]))
+        };
+      })
+      .AddCookie(options => {
+        // options.Cookie.Name = "XAFAppCookie";
+        // options.Cookie.HttpOnly = true;
+        // options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+        // options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
+        // options.Cookie.IsEssential = true;
+        // options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        // options.LoginPath = "/Account/Login";
+        // options.LogoutPath = "/Account/Logout";
+        // options.AccessDeniedPath = "/Account/AccessDenied";
+        // options.SlidingExpiration = true;
+      });
+
+    services.AddAuthorization(options => {
+      options.DefaultPolicy = new AuthorizationPolicyBuilder(
+          JwtBearerDefaults.AuthenticationScheme, CookieAuthenticationDefaults.AuthenticationScheme)
+              .RequireAuthenticatedUser()
+              .RequireXafAuthentication()
+              .Build();
+    });
+
     services.AddDbContextFactory<XAFApp.Module.BusinessObjects.XAFAppEFCoreDbContext>((serviceProvider, options) => {
       // Uncomment this code to use an in-memory database. This database is recreated each time the server starts. With the in-memory database, you don't need to make a migration when the data model is changed.
       // Do not use this code in production environment to avoid data loss.
@@ -36,6 +88,7 @@ public class Startup {
       options.UseChangeTrackingProxies();
       options.UseObjectSpaceLinkProxies();
       options.UseLazyLoadingProxies();
+      options.UseSecurity(serviceProvider);
     }, ServiceLifetime.Scoped);
 
     services.AddScoped<IDataService, XAFApp.WebApi.Core.ValidatingDataService>();

@@ -8,6 +8,14 @@ using Microsoft.EntityFrameworkCore;
 using XAFApp.Blazor.Server.Services;
 using DevExpress.ExpressApp.Core;
 using Antlr4.StringTemplate;
+using DevExpress.ExpressApp.Security.Authentication.ClientServer;
+using XAFApp.Module.BusinessObjects;
+using DevExpress.Persistent.BaseImpl.EF;
+using DevExpress.Persistent.BaseImpl.EF.PermissionPolicy;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 
 namespace XAFApp.Blazor.Server;
 
@@ -33,7 +41,7 @@ public class Startup {
           .Add<XAFApp.Module.XAFAppModule>()
         .Add<XAFAppBlazorModule>();
       builder.ObjectSpaceProviders
-          .AddEFCore().WithDbContext<XAFApp.Module.BusinessObjects.XAFAppEFCoreDbContext>((serviceProvider, options) => {
+          .AddSecuredEFCore().WithDbContext<XAFApp.Module.BusinessObjects.XAFAppEFCoreDbContext>((serviceProvider, options) => {
             // Uncomment this code to use an in-memory database. This database is recreated each time the server starts. With the in-memory database, you don't need to make a migration when the data model is changed.
             // Do not use this code in production environment to avoid data loss.
             // We recommend that you refer to the following help topic before you use an in-memory database: https://docs.microsoft.com/en-us/ef/core/testing/in-memory
@@ -48,7 +56,34 @@ public class Startup {
             options.UseLazyLoadingProxies();
           })
           .AddNonPersistent();
+      builder.Security
+        .UseIntegratedMode(options => {
+          options.RoleType = typeof(PermissionPolicyRole);
+          // ApplicationUser descends from PermissionPolicyUser and supports the OAuth authentication. For more information, refer to the following topic: https://docs.devexpress.com/eXpressAppFramework/402197
+          // If your application uses PermissionPolicyUser or a custom user type, set the UserType property as follows:
+          options.UserType = typeof(ApplicationUser);
+          // ApplicationUserLoginInfo is only necessary for applications that use the ApplicationUser user type.
+          // If you use PermissionPolicyUser or a custom user type, comment out the following line:
+          options.UserLoginInfoType = typeof(ApplicationUserLoginInfo);
+        })
+        .AddPasswordAuthentication(options => {
+          options.IsSupportChangePassword = true;
+        });
     });
+
+    var authentication = services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme);
+    authentication
+        .AddCookie(options => {
+          options.LoginPath = "/LoginPage";
+        });
+    services.AddAuthorization(options => {
+      options.DefaultPolicy = new AuthorizationPolicyBuilder(
+          CookieAuthenticationDefaults.AuthenticationScheme)
+              .RequireAuthenticatedUser()
+              .RequireXafAuthentication()
+              .Build();
+    });
+
   }
 
   // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -65,6 +100,8 @@ public class Startup {
     app.UseRequestLocalization();
     app.UseStaticFiles();
     app.UseRouting();
+    app.UseAuthentication();
+    app.UseAuthorization();
     app.UseXaf();
     app.UseEndpoints(endpoints => {
       endpoints.MapXafEndpoints();
