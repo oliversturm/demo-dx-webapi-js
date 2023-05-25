@@ -17,9 +17,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DevExpress.ExpressApp.Blazor" Version="22.2.4" />
-    <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="22.2.4" />
-    <PackageReference Include="DevExpress.ExpressApp.Validation.Blazor" Version="22.2.4" />
+    <PackageReference Include="DevExpress.ExpressApp.Blazor" Version="23.1.2-beta" />
+    <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="23.1.2-beta" />
+    <PackageReference Include="DevExpress.ExpressApp.Validation.Blazor" Version="23.1.2-beta" />
     <PackageReference Include="StringTemplate4" Version="4.0.8" />
   </ItemGroup>
   <ItemGroup>
