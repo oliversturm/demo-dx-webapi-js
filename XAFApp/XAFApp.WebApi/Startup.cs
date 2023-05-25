@@ -1,21 +1,25 @@
-﻿using DevExpress.Persistent.Base;
+﻿using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using DevExpress.ExpressApp.WebApi.Services;
 using Microsoft.AspNetCore.OData;
-using DevExpress.ExpressApp.Core;
-using XAFApp.WebApi.Core;
-using DevExpress.ExpressApp.AspNetCore.WebApi;
-using Antlr4.StringTemplate;
-using DevExpress.ExpressApp.Security.Authentication.ClientServer;
-using XAFApp.WebApi.Security;
-using DevExpress.Persistent.BaseImpl.EF.PermissionPolicy;
-using DevExpress.ExpressApp.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using DevExpress.Persistent.Base;
+using DevExpress.Persistent.BaseImpl.EF.PermissionPolicy;
+using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.Core;
+using DevExpress.ExpressApp.ApplicationBuilder;
+using DevExpress.ExpressApp.WebApi.Services;
+using DevExpress.ExpressApp.AspNetCore.WebApi;
+using DevExpress.ExpressApp.Security;
+using DevExpress.ExpressApp.Security.Authentication.ClientServer;
+
+using Antlr4.StringTemplate;
+
+using XAFApp.WebApi.Core;
+using XAFApp.WebApi.Security;
 using XAFApp.Module.BusinessObjects;
 
 namespace XAFApp.WebApi;
@@ -30,21 +34,30 @@ public class Startup {
   // This method gets called by the runtime. Use this method to add services to the container.
   // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
   public void ConfigureServices(IServiceCollection services) {
-    services
-        .AddScoped<IObjectSpaceProviderFactory, ObjectSpaceProviderFactory>()
-        .AddSingleton<IWebApiApplicationSetup, WebApiApplicationSetup>();
+    // TODO -- Could be I don't need this since the files are no longer generated?
+    // Apparently the object space provider factory is just not needed now. And the
+    // web app application setup thing only pulled in the module, which is now 
+    // done separately below in the builder. Database update code is also handled
+    // by the builder now.
+    // services
+    //     .AddScoped<IObjectSpaceProviderFactory, ObjectSpaceProviderFactory>()
+    //     .AddSingleton<IWebApiApplicationSetup, WebApiApplicationSetup>();
 
-    services.AddXafAspNetCoreSecurity(Configuration, options => {
-      options.RoleType = typeof(PermissionPolicyRole);
-      options.UserType = typeof(ApplicationUser);
-      options.UserLoginInfoType = typeof(ApplicationUserLoginInfo);
-      // in XPO applications, uncomment the following line
-      // options.Events.OnSecurityStrategyCreated = securityStrategy => ((SecurityStrategy)securityStrategy).RegisterXPOAdapterProviders();
-      options.SupportNavigationPermissionsForTypes = false;
-    })
-    .AddAuthenticationStandard(options => {
-      options.IsSupportChangePassword = true;
-    });
+    // TODO -- I guess I don't need this anymore, because it's replaced by a call to 
+    // builder.Security.UseIntegratedMode(...) further down.
+    // services.AddXafAspNetCoreSecurity(Configuration, options => {
+    //   options.RoleType = typeof(PermissionPolicyRole);
+    //   options.UserType = typeof(ApplicationUser);
+    //   options.UserLoginInfoType = typeof(ApplicationUserLoginInfo);
+    //   // in XPO applications, uncomment the following line
+    //   // options.Events.OnSecurityStrategyCreated = securityStrategy => ((SecurityStrategy)securityStrategy).RegisterXPOAdapterProviders();
+    //   options.SupportNavigationPermissionsForTypes = false;
+    // })
+    // .AddAuthenticationStandard(options => {
+    //   options.IsSupportChangePassword = true;
+    // });
+
+
     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
       .AddJwtBearer(options => {
         options.TokenValidationParameters = new TokenValidationParameters()
@@ -76,29 +89,92 @@ public class Startup {
               .Build();
     });
 
-    services.AddDbContextFactory<XAFApp.Module.BusinessObjects.XAFAppEFCoreDbContext>((serviceProvider, options) => {
-      // Uncomment this code to use an in-memory database. This database is recreated each time the server starts. With the in-memory database, you don't need to make a migration when the data model is changed.
-      // Do not use this code in production environment to avoid data loss.
-      // We recommend that you refer to the following help topic before you use an in-memory database: https://docs.microsoft.com/en-us/ef/core/testing/in-memory
-      //options.UseInMemoryDatabase("InMemory");
-      var connectionStringTemplate = new Template(Configuration.GetConnectionString("ConnectionString"));
-      connectionStringTemplate.Add("SQL_DBNAME", System.Environment.GetEnvironmentVariable("SQL_DBNAME"));
-      connectionStringTemplate.Add("SQL_SA_PASSWD", System.Environment.GetEnvironmentVariable("SQL_SA_PASSWD"));
-      options.UseSqlServer(connectionStringTemplate.Render());
-      options.UseChangeTrackingProxies();
-      options.UseObjectSpaceLinkProxies();
-      options.UseLazyLoadingProxies();
-      options.UseSecurity(serviceProvider);
-    }, ServiceLifetime.Scoped);
+    // TODO -- I guess I may not need this anymore once I migrate to the new call below?
+    // This has moved to the `builder.ObjectSpaceProvider` bit below.
+    // The call to .UseSecurity is not necessary, I assume, because
+    // we now have .AddSecuredEFCore().
+    // services.AddDbContextFactory<XAFApp.Module.BusinessObjects.XAFAppEFCoreDbContext>((serviceProvider, options) => {
+    //   // Uncomment this code to use an in-memory database. This database is recreated each time the server starts. With the in-memory database, you don't need to make a migration when the data model is changed.
+    //   // Do not use this code in production environment to avoid data loss.
+    //   // We recommend that you refer to the following help topic before you use an in-memory database: https://docs.microsoft.com/en-us/ef/core/testing/in-memory
+    //   //options.UseInMemoryDatabase("InMemory");
+    //   var connectionStringTemplate = new Template(Configuration.GetConnectionString("ConnectionString"));
+    //   connectionStringTemplate.Add("SQL_DBNAME", System.Environment.GetEnvironmentVariable("SQL_DBNAME"));
+    //   connectionStringTemplate.Add("SQL_SA_PASSWD", System.Environment.GetEnvironmentVariable("SQL_SA_PASSWD"));
+    //   options.UseSqlServer(connectionStringTemplate.Render());
+    //   options.UseChangeTrackingProxies();
+    //   options.UseObjectSpaceLinkProxies();
+    //   options.UseLazyLoadingProxies();
+    //   options.UseSecurity(serviceProvider);
+    // }, ServiceLifetime.Scoped);
 
+    // TODO -- what about this one?
     services.AddScoped<IDataService, XAFApp.WebApi.Core.ValidatingDataService>();
 
-    services
-        .AddXafWebApi(Configuration, options => {
-          // Make your business objects available in the Web API and generate the GET, POST, PUT, and DELETE HTTP methods for it.
-          // options.BusinessObject<YourBusinessObject>();
-          options.BusinessObject<XAFApp.Module.BusinessObjects.SaleProduct>();
+
+    // services
+    //     .AddXafWebApi(Configuration, options => {
+    //       // Make your business objects available in the Web API and generate the GET, POST, PUT, and DELETE HTTP methods for it.
+    //       // options.BusinessObject<YourBusinessObject>();
+    //       options.BusinessObject<XAFApp.Module.BusinessObjects.SaleProduct>();
+    //     });
+
+    services.AddXafWebApi(builder => {
+      builder.ConfigureOptions(options => {
+        // Make your business objects available in the Web API and generate the GET, POST, PUT, and DELETE HTTP methods for it.
+        // options.BusinessObject<YourBusinessObject>();
+        options.BusinessObject<XAFApp.Module.BusinessObjects.SaleProduct>();
+      });
+
+      builder.Modules
+          .AddValidation()
+          .Add<XAFApp.Module.XAFAppModule>();
+
+      builder.ObjectSpaceProviders
+        .AddSecuredEFCore(options => options.PreFetchReferenceProperties())
+            .WithDbContext<XAFApp.Module.BusinessObjects.XAFAppEFCoreDbContext>((serviceProvider, options) => {
+              // Uncomment this code to use an in-memory database. This database is recreated each time the server starts. With the in-memory database, you don't need to make a migration when the data model is changed.
+              // Do not use this code in production environment to avoid data loss.
+              // We recommend that you refer to the following help topic before you use an in-memory database: https://docs.microsoft.com/en-us/ef/core/testing/in-memory
+              //options.UseInMemoryDatabase("InMemory");
+              var connectionStringTemplate = new Template(Configuration.GetConnectionString("ConnectionString"));
+              connectionStringTemplate.Add("SQL_DBNAME", System.Environment.GetEnvironmentVariable("SQL_DBNAME"));
+              connectionStringTemplate.Add("SQL_SA_PASSWD", System.Environment.GetEnvironmentVariable("SQL_SA_PASSWD"));
+              options.UseSqlServer(connectionStringTemplate.Render());
+              options.UseChangeTrackingProxies();
+              options.UseObjectSpaceLinkProxies();
+              options.UseLazyLoadingProxies();
+            })
+        .AddNonPersistent();
+
+      builder.Security
+        .UseIntegratedMode(options => {
+          options.RoleType = typeof(PermissionPolicyRole);
+          options.UserType = typeof(ApplicationUser);
+          options.UserLoginInfoType = typeof(ApplicationUserLoginInfo);
+          options.SupportNavigationPermissionsForTypes = false;
+        })
+        .AddPasswordAuthentication(options => {
+          options.IsSupportChangePassword = true;
         });
+
+      builder.AddBuildStep(application => {
+        application.ApplicationName = "XAFApp";
+        application.CheckCompatibilityType = DevExpress.ExpressApp.CheckCompatibilityType.DatabaseSchema;
+#if DEBUG
+                if(System.Diagnostics.Debugger.IsAttached && application.CheckCompatibilityType == CheckCompatibilityType.DatabaseSchema) {
+                    application.DatabaseUpdateMode = DatabaseUpdateMode.UpdateDatabaseAlways;
+                }
+#endif
+        application.DatabaseVersionMismatch += (s, e) => {
+          e.Updater.Update();
+          e.Handled = true;
+        };
+
+      });
+
+    }, Configuration);
+
     services
         .AddControllers()
         .AddOData((options, serviceProvider) => {
