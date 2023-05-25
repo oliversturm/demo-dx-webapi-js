@@ -1,4 +1,4 @@
-using DevExpress.ExpressApp.ApplicationBuilder;
+﻿using DevExpress.ExpressApp.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.Services;
 using DevExpress.Persistent.Base;
@@ -77,14 +77,6 @@ public class Startup {
         .AddCookie(options => {
           options.LoginPath = "/LoginPage";
         });
-    services.AddAuthorization(options => {
-      options.DefaultPolicy = new AuthorizationPolicyBuilder(
-          CookieAuthenticationDefaults.AuthenticationScheme)
-              .RequireAuthenticatedUser()
-              .RequireXafAuthentication()
-              .Build();
-    });
-
   }
 
   // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
