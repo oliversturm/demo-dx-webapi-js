@@ -4,7 +4,13 @@ export function handleFetch({ event, request, fetch }) {
 	// because the request accesses the webapi server on a different
 	// port.
 	if (request.url.startsWith('http://webapi:5273/api')) {
-		request.headers.set('cookie', event.request.headers.get('cookie'));
+		const jwt = event.cookies.get('webapiDemoJwt');
+		if (jwt) {
+			// We are working in JWT mode, so set the Authorization header
+			request.headers.set('Authorization', `Bearer ${jwt}`);
+		} else {
+			request.headers.set('cookie', event.request.headers.get('cookie'));
+		}
 	}
 	return fetch(request);
 }
