@@ -1,4 +1,5 @@
 export function load({ cookies }) {
 	const userName = cookies.get('webapiDemoUserName');
-	return { userName };
+	const jwt = cookies.get('webapiDemoJwt');
+	return { userName, hasJwt: !!jwt };
 }
