@@ -28,6 +28,7 @@ public sealed class XAFAppModule : ModuleBase {
     RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Security.SecurityModule));
     RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Objects.BusinessClassLibraryCustomizationModule));
     RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Validation.ValidationModule));
+    RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.ReportsV2.ReportsModuleV2));
 
     DevExpress.ExpressApp.Security.SecurityModule.UsedExportedTypes = DevExpress.Persistent.Base.UsedExportedTypes.Custom;
   }

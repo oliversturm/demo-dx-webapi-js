@@ -38,6 +38,11 @@ public class Startup {
     services.AddXaf(Configuration, builder => {
       builder.UseApplication<XAFAppBlazorApplication>();
       builder.Modules
+         .AddReports(options => {
+           options.EnableInplaceReports = true;
+           options.ReportDataType = typeof(DevExpress.Persistent.BaseImpl.EF.ReportDataV2);
+           options.ReportStoreMode = DevExpress.ExpressApp.ReportsV2.ReportStoreModes.XML;
+         })
           .Add<XAFApp.Module.XAFAppModule>()
         .Add<XAFAppBlazorModule>();
       builder.ObjectSpaceProviders

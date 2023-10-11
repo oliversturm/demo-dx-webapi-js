@@ -38,6 +38,7 @@ public class XAFAppEFCoreDbContext : DbContext {
   //public DbSet<ModuleInfo> ModulesInfo { get; set; }
 
   public DbSet<SaleProduct> SaleProducts { get; set; }
+  public DbSet<DevExpress.Persistent.BaseImpl.EF.ReportDataV2> ReportDataV2 { get; set; }
 
   public DbSet<ModelDifference> ModelDifferences { get; set; }
   public DbSet<ModelDifferenceAspect> ModelDifferenceAspects { get; set; }

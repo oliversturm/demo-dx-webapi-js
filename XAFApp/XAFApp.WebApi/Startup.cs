@@ -72,9 +72,13 @@ public class Startup {
         // Make your business objects available in the Web API and generate the GET, POST, PUT, and DELETE HTTP methods for it.
         // options.BusinessObject<YourBusinessObject>();
         options.BusinessObject<XAFApp.Module.BusinessObjects.SaleProduct>();
+        options.BusinessObject<DevExpress.Persistent.BaseImpl.EF.ReportDataV2>();
       });
 
       builder.Modules
+          .AddReports(options => {
+            options.ReportDataType = typeof(DevExpress.Persistent.BaseImpl.EF.ReportDataV2);
+          })
           .AddValidation()
           .Add<XAFApp.Module.XAFAppModule>();
 

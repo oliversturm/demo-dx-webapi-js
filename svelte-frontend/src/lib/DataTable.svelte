@@ -15,7 +15,8 @@
 		desc: false,
 		filters: {}
 	};
-	export let editBaseUrl;
+	export let editBaseUrl = null;
+	export let extraRowActionButtons = null;
 
 	const headerClick = (field) => () => {
 		const newSort = field;
@@ -48,6 +49,8 @@
 		<th class="action">
 			{#if editBaseUrl}
 				<a href={editBaseUrl} alt="Create"><span class="fa fa-star-o" /></a>
+			{:else}
+				<div>&nbsp;</div>
 			{/if}
 		</th>
 	</tr>
@@ -65,7 +68,9 @@
 				{/if}
 			</td>
 		{/each}
-		<td class="action" />
+		<td class="action">
+			<div>&nbsp;</div>
+		</td>
 	</tr>
 	{#await dataSource}
 		<tr class="placeholder"><td colspan="2">Waiting for data</td></tr>
@@ -81,6 +86,9 @@
 							<a href="{editBaseUrl}/{item[schema['$$idField']]}" alt="Edit"
 								><span class="fa fa-edit" /></a
 							>
+						{/if}
+						{#if extraRowActionButtons}
+							<svelte:component this={extraRowActionButtons} row={item} />
 						{/if}
 					</td>
 				</tr>
@@ -132,7 +140,7 @@
 		@apply bg-red-200;
 	}
 	.action {
-		@apply bg-green-200 text-center;
+		@apply bg-green-200 text-center flex gap-1;
 	}
 	.action a {
 		@apply border-2 rounded bg-white px-2 py-0.5 hover:bg-orange-200;

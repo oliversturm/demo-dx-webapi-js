@@ -61,7 +61,7 @@ export const actions = {
 		if (!response.ok) {
 			throw error(500, 'Error logging out');
 		} else {
-			console.log(`Logout successful for user ${event.cookies.get('xafDemoUserName')}`);
+			console.log(`Logout successful for user ${event.cookies.get('webapiDemoUserName')}`);
 			copyCookies(response, event);
 			// Remove our own cookie(s)
 			event.cookies.set('webapiDemoUserName', '', { path: '/' });
