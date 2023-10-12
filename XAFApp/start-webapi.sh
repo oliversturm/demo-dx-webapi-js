@@ -1,3 +1,3 @@
 #!/bin/sh
 
-dotnet watch run --project XAFApp.WebApi
+dotnet run --project XAFApp.WebApi
