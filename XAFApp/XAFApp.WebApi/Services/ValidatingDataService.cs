@@ -3,14 +3,16 @@ using DevExpress.ExpressApp.Core;
 using DevExpress.ExpressApp.DC;
 using DevExpress.ExpressApp.WebApi.Services;
 using DevExpress.Persistent.Validation;
+using System.ComponentModel;
 
 namespace XAFApp.WebApi.Core;
 
 public class ValidatingDataService : DataService {
-  readonly IValidator validator;
+  private readonly IValidator validator;
+
   public ValidatingDataService(IObjectSpaceFactory objectSpaceFactory,
-   ITypesInfo typesInfo, IValidator validator)
-   : base(objectSpaceFactory, typesInfo) {
+    ITypesInfo typesInfo, IValidator validator)
+    : base(objectSpaceFactory, typesInfo) {
     this.validator = validator;
   }
 
@@ -21,10 +23,10 @@ public class ValidatingDataService : DataService {
   }
 
   private void ObjectSpace_Committing(object? sender,
-    System.ComponentModel.CancelEventArgs e) {
+    CancelEventArgs e) {
     IObjectSpace os = (IObjectSpace)sender!;
-    var validationResult = validator.RuleSet.ValidateAllTargets(
-        os, os.ModifiedObjects, DefaultContexts.Save
+    RuleSetValidationResult validationResult = validator.RuleSet.ValidateAllTargets(
+      os, os.ModifiedObjects, DefaultContexts.Save
     );
     if (validationResult.ValidationOutcome == ValidationOutcome.Error) {
       throw new ValidationException(validationResult);
