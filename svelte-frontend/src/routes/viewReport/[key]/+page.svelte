@@ -1,24 +1,25 @@
 <script>
-	import { onMount } from 'svelte';
+  import { onMount } from "svelte";
 
-	export let data;
-	$: ({ pdfDocumentSerialized } = data);
+  export let data;
+  $: ({ pdfDocumentSerialized } = data);
 
-	$: pdfDocument = new Blob(
-		[new Uint8Array([...atob(pdfDocumentSerialized)].map((char) => char.charCodeAt(0)))],
-		{ type: 'application/pdf' }
-	);
+  $: pdfDocument = new File(
+    [new Uint8Array([...atob(pdfDocumentSerialized)].map((char) => char.charCodeAt(0)))],
+    // Some browsers can use this filename property to associate with the
+    // blob data. This is not supported by all browsers.
+    "report.pdf",
+    { type: "application/pdf" });
 
-	onMount(() => {
-		if (pdfDocument) {
-			const url = URL.createObjectURL(pdfDocument);
-			console.log(`Got document, URL created: ${url}`);
-			iframe.src = url;
-		}
-	});
-	let iframe;
+  onMount(() => {
+    if (pdfDocument) {
+      const url = URL.createObjectURL(pdfDocument);
+      iframe.src = url;
+    }
+  });
+  let iframe;
 </script>
 
 <div class="flex flex-col h-70vh">
-	<iframe bind:this={iframe} class="w-full grow" title="Report Preview" />
+  <iframe bind:this={iframe} class="w-full grow" title="Report Preview" />
 </div>
