@@ -1,21 +1,18 @@
-﻿using DevExpress.ExpressApp.ApplicationBuilder;
+﻿using Antlr4.StringTemplate;
+using DevExpress.ExpressApp.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.Services;
-using DevExpress.Persistent.Base;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Components.Server.Circuits;
-using Microsoft.EntityFrameworkCore;
-using XAFApp.Blazor.Server.Services;
-using DevExpress.ExpressApp.Core;
-using Antlr4.StringTemplate;
-using DevExpress.ExpressApp.Security.Authentication.ClientServer;
-using XAFApp.Module.BusinessObjects;
+using DevExpress.ExpressApp.ReportsV2;
 using DevExpress.Persistent.BaseImpl.EF;
 using DevExpress.Persistent.BaseImpl.EF.PermissionPolicy;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Server.Circuits;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using XAFApp.Blazor.Server.Services;
+using XAFApp.Module;
+using XAFApp.Module.BusinessObjects;
 
 namespace XAFApp.Blazor.Server;
 
@@ -29,7 +26,7 @@ public class Startup {
   // This method gets called by the runtime. Use this method to add services to the container.
   // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
   public void ConfigureServices(IServiceCollection services) {
-    services.AddSingleton(typeof(Microsoft.AspNetCore.SignalR.HubConnectionHandler<>), typeof(ProxyHubConnectionHandler<>));
+    services.AddSingleton(typeof(HubConnectionHandler<>), typeof(ProxyHubConnectionHandler<>));
 
     services.AddRazorPages();
     services.AddServerSideBlazor();
@@ -38,30 +35,30 @@ public class Startup {
     services.AddXaf(Configuration, builder => {
       builder.UseApplication<XAFAppBlazorApplication>();
       builder.Modules
-         .AddReports(options => {
-           options.EnableInplaceReports = true;
-           options.ReportDataType = typeof(DevExpress.Persistent.BaseImpl.EF.ReportDataV2);
-           options.ReportStoreMode = DevExpress.ExpressApp.ReportsV2.ReportStoreModes.XML;
-         })
-          .Add<XAFApp.Module.XAFAppModule>()
+        .AddReports(options => {
+          options.EnableInplaceReports = true;
+          options.ReportDataType = typeof(ReportDataV2);
+          options.ReportStoreMode = ReportStoreModes.XML;
+        })
+        .Add<XAFAppModule>()
         .Add<XAFAppBlazorModule>();
       builder.ObjectSpaceProviders
-          .AddSecuredEFCore(options => options.PreFetchReferenceProperties())
-            .WithDbContext<XAFApp.Module.BusinessObjects.XAFAppEFCoreDbContext>((serviceProvider, options) => {
-              // Uncomment this code to use an in-memory database. This database is recreated each time the server starts. With the in-memory database, you don't need to make a migration when the data model is changed.
-              // Do not use this code in production environment to avoid data loss.
-              // We recommend that you refer to the following help topic before you use an in-memory database: https://docs.microsoft.com/en-us/ef/core/testing/in-memory
-              //options.UseInMemoryDatabase("InMemory");
-              var connectionStringTemplate = new Template(Configuration.GetConnectionString("ConnectionString"));
-              connectionStringTemplate.Add("SQL_DBNAME", System.Environment.GetEnvironmentVariable("SQL_DBNAME"));
-              connectionStringTemplate.Add("SQL_SA_PASSWD", System.Environment.GetEnvironmentVariable("SQL_SA_PASSWD"));
-              options.UseSqlServer(connectionStringTemplate.Render());
-              Console.WriteLine("Used SQL Server with connection string: " + connectionStringTemplate.Render());
-              options.UseChangeTrackingProxies();
-              options.UseObjectSpaceLinkProxies();
-              options.UseLazyLoadingProxies();
-            })
-          .AddNonPersistent();
+        .AddSecuredEFCore(options => options.PreFetchReferenceProperties())
+        .WithDbContext<XAFAppEFCoreDbContext>((serviceProvider, options) => {
+          // Uncomment this code to use an in-memory database. This database is recreated each time the server starts. With the in-memory database, you don't need to make a migration when the data model is changed.
+          // Do not use this code in production environment to avoid data loss.
+          // We recommend that you refer to the following help topic before you use an in-memory database: https://docs.microsoft.com/en-us/ef/core/testing/in-memory
+          //options.UseInMemoryDatabase("InMemory");
+          Template connectionStringTemplate = new(Configuration.GetConnectionString("ConnectionString"));
+          connectionStringTemplate.Add("SQL_DBNAME", Environment.GetEnvironmentVariable("SQL_DBNAME"));
+          connectionStringTemplate.Add("SQL_SA_PASSWD", Environment.GetEnvironmentVariable("SQL_SA_PASSWD"));
+          options.UseSqlServer(connectionStringTemplate.Render());
+          Console.WriteLine("Used SQL Server with connection string: " + connectionStringTemplate.Render());
+          options.UseChangeTrackingProxies();
+          options.UseObjectSpaceLinkProxies();
+          options.UseLazyLoadingProxies();
+        })
+        .AddNonPersistent();
       builder.Security
         .UseIntegratedMode(options => {
           options.RoleType = typeof(PermissionPolicyRole);
@@ -77,11 +74,12 @@ public class Startup {
         });
     });
 
-    var authentication = services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme);
+    AuthenticationBuilder authentication =
+      services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme);
     authentication
-        .AddCookie(options => {
-          options.LoginPath = "/LoginPage";
-        });
+      .AddCookie(options => {
+        options.LoginPath = "/LoginPage";
+      });
   }
 
   // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -94,6 +92,7 @@ public class Startup {
       // The default HSTS value is 30 days. To change this for production scenarios, see: https://aka.ms/aspnetcore-hsts.
       app.UseHsts();
     }
+
     //app.UseHttpsRedirection();
     app.UseRequestLocalization();
     app.UseStaticFiles();
