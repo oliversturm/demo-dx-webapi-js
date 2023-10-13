@@ -1,4 +1,5 @@
 ﻿using Antlr4.StringTemplate;
+using DevExpress.Drawing.Internal;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.ApplicationBuilder;
 using DevExpress.ExpressApp.WebApi.Services;
@@ -12,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using XAFApp.Module;
 using XAFApp.Module.BusinessObjects;
@@ -84,7 +86,7 @@ public class Startup {
           // Do not use this code in production environment to avoid data loss.
           // We recommend that you refer to the following help topic before you use an in-memory database: https://docs.microsoft.com/en-us/ef/core/testing/in-memory
           //options.UseInMemoryDatabase("InMemory");
-          Template connectionStringTemplate = new Template(Configuration.GetConnectionString("ConnectionString"));
+          Template connectionStringTemplate = new(Configuration.GetConnectionString("ConnectionString"));
           connectionStringTemplate.Add("SQL_DBNAME", Environment.GetEnvironmentVariable("SQL_DBNAME"));
           connectionStringTemplate.Add("SQL_SA_PASSWD", Environment.GetEnvironmentVariable("SQL_SA_PASSWD"));
           options.UseSqlServer(connectionStringTemplate.Render());
@@ -138,6 +140,10 @@ public class Startup {
             @"Use AddXafWebApi(options) in the XAFApp.WebApi\Startup.cs file to make Business Objects available in the Web API."
         });
     });
+
+    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+      DXDrawingEngine.ForceSkia();
+    }
   }
 
   // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
