@@ -1,5 +1,4 @@
 ﻿using Antlr4.StringTemplate;
-using DevExpress.Drawing.Internal;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.ApplicationBuilder;
 using DevExpress.ExpressApp.WebApi.Services;
@@ -13,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Text;
 using XAFApp.Module;
 using XAFApp.Module.BusinessObjects;
@@ -140,10 +138,6 @@ public class Startup {
             @"Use AddXafWebApi(options) in the XAFApp.WebApi\Startup.cs file to make Business Objects available in the Web API."
         });
     });
-
-    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-      DXDrawingEngine.ForceSkia();
-    }
   }
 
   // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
