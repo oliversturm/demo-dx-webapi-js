@@ -11,6 +11,7 @@
 <div class="w-9/12 max-w-prose m-auto">
 	<nav class="mb-8 flex gap-2">
 		<a href="/saleProducts">Sale Products</a>
+		<a href="/reports">Reports</a>
 		<a class="ml-auto" href="/account">
 			{#if userName}
 				<span class="fa fa-user-circle-o mr-4" />Account "{userName}"{hasJwt ? ' (JWT)' : ''}

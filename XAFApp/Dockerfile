@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:7.0
 
 RUN apt-get update
-RUN apt-get install -y wait-for-it libc6 libicu-dev libfontconfig1 libgdiplus
+RUN apt-get install -y wait-for-it libc6 libicu-dev libfontconfig1
 
 WORKDIR /src
 
