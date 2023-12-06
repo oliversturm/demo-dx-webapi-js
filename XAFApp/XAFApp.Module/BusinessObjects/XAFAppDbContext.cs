@@ -1,11 +1,10 @@
-﻿using DevExpress.ExpressApp.EFCore.Updating;
+﻿using DevExpress.ExpressApp.Design;
+using DevExpress.ExpressApp.EFCore.DesignTime;
+using DevExpress.ExpressApp.Security;
+using DevExpress.Persistent.BaseImpl.EF;
+using DevExpress.Persistent.BaseImpl.EF.PermissionPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using DevExpress.Persistent.BaseImpl.EF.PermissionPolicy;
-using DevExpress.Persistent.BaseImpl.EF;
-using DevExpress.ExpressApp.Design;
-using DevExpress.ExpressApp.EFCore.DesignTime;
-using XAFApp.Module.BusinessObjects;
 
 namespace XAFApp.Module.BusinessObjects;
 
@@ -13,17 +12,19 @@ namespace XAFApp.Module.BusinessObjects;
 // For details, please refer to https://supportcenter.devexpress.com/ticket/details/t933891.
 public class XAFAppContextInitializer : DbContextTypesInfoInitializerBase {
   protected override DbContext CreateDbContext() {
-    var optionsBuilder = new DbContextOptionsBuilder<XAFAppEFCoreDbContext>()
-            .UseSqlServer(";")
-            .UseChangeTrackingProxies()
-            .UseObjectSpaceLinkProxies();
+    DbContextOptionsBuilder<XAFAppEFCoreDbContext> optionsBuilder = new DbContextOptionsBuilder<XAFAppEFCoreDbContext>()
+      .UseSqlServer(";")
+      .UseChangeTrackingProxies()
+      .UseObjectSpaceLinkProxies();
     return new XAFAppEFCoreDbContext(optionsBuilder.Options);
   }
 }
+
 //This factory creates DbContext for design-time services. For example, it is required for database migration.
 public class XAFAppDesignTimeDbContextFactory : IDesignTimeDbContextFactory<XAFAppEFCoreDbContext> {
   public XAFAppEFCoreDbContext CreateDbContext(string[] args) {
-    throw new InvalidOperationException("Make sure that the database connection string and connection provider are correct. After that, uncomment the code below and remove this exception.");
+    throw new InvalidOperationException(
+      "Make sure that the database connection string and connection provider are correct. After that, uncomment the code below and remove this exception.");
     //var optionsBuilder = new DbContextOptionsBuilder<XAFAppEFCoreDbContext>();
     //optionsBuilder.UseSqlServer("Integrated Security=SSPI;Pooling=false;Data Source=(localdb)\\mssqllocaldb;Initial Catalog=XAFApp");
     //optionsBuilder.UseChangeTrackingProxies();
@@ -31,6 +32,7 @@ public class XAFAppDesignTimeDbContextFactory : IDesignTimeDbContextFactory<XAFA
     //return new XAFAppEFCoreDbContext(optionsBuilder.Options);
   }
 }
+
 [TypesInfoInitializer(typeof(XAFAppContextInitializer))]
 public class XAFAppEFCoreDbContext : DbContext {
   public XAFAppEFCoreDbContext(DbContextOptions<XAFAppEFCoreDbContext> options) : base(options) {
@@ -38,7 +40,8 @@ public class XAFAppEFCoreDbContext : DbContext {
   //public DbSet<ModuleInfo> ModulesInfo { get; set; }
 
   public DbSet<SaleProduct> SaleProducts { get; set; }
-  public DbSet<DevExpress.Persistent.BaseImpl.EF.ReportDataV2> ReportDataV2 { get; set; }
+  public DbSet<ReportDataV2> ReportDataV2 { get; set; }
+  public DbSet<RichTextMailMergeData> RichTextMailMergeData { get; set; }
 
   public DbSet<ModelDifference> ModelDifferences { get; set; }
   public DbSet<ModelDifferenceAspect> ModelDifferenceAspects { get; set; }
@@ -51,11 +54,12 @@ public class XAFAppEFCoreDbContext : DbContext {
     base.OnModelCreating(modelBuilder);
     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
     modelBuilder.Entity<ApplicationUserLoginInfo>(b => {
-      b.HasIndex(nameof(DevExpress.ExpressApp.Security.ISecurityUserLoginInfo.LoginProviderName), nameof(DevExpress.ExpressApp.Security.ISecurityUserLoginInfo.ProviderUserKey)).IsUnique();
+      b.HasIndex(nameof(ISecurityUserLoginInfo.LoginProviderName), nameof(ISecurityUserLoginInfo.ProviderUserKey))
+        .IsUnique();
     });
     modelBuilder.Entity<ModelDifference>()
-        .HasMany(t => t.Aspects)
-        .WithOne(t => t.Owner)
-        .OnDelete(DeleteBehavior.Cascade);
+      .HasMany(t => t.Aspects)
+      .WithOne(t => t.Owner)
+      .OnDelete(DeleteBehavior.Cascade);
   }
 }

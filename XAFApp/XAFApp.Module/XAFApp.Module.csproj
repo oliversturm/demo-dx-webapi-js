@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
         <CheckEolTargetFramework>false</CheckEolTargetFramework>
@@ -21,7 +21,7 @@
         <PackageReference Include="DevExpress.ExpressApp.Objects" Version="23.2.2-beta"/>
         <PackageReference Include="DevExpress.ExpressApp.Validation" Version="23.2.2-beta"/>
         <PackageReference Include="DevExpress.ExpressApp.ReportsV2" Version="23.2.2-beta"/>
-        <PackageReference Include="DevExpress.Persistent.Base" Version="23.2.1-*"/>
+        <PackageReference Include="DevExpress.ExpressApp.Office" Version="23.2.2-beta"/>
         <PackageReference Include="DevExpress.Persistent.Base" Version="23.2.2-beta"/>
         <PackageReference Include="DevExpress.Persistent.BaseImpl.EFCore" Version="23.2.2-beta"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.14"/>

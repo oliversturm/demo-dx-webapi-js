@@ -1,14 +1,16 @@
-﻿using System.ComponentModel;
-using DevExpress.ExpressApp;
-using DevExpress.ExpressApp.DC;
-using DevExpress.Persistent.Base;
-using DevExpress.ExpressApp.Model;
-using DevExpress.ExpressApp.Actions;
-using DevExpress.ExpressApp.Editors;
+﻿using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.Objects;
+using DevExpress.ExpressApp.Office;
+using DevExpress.ExpressApp.ReportsV2;
+using DevExpress.ExpressApp.Security;
+using DevExpress.ExpressApp.SystemModule;
 using DevExpress.ExpressApp.Updating;
-using DevExpress.ExpressApp.Model.Core;
-using DevExpress.ExpressApp.Model.DomainLogics;
-using DevExpress.ExpressApp.Model.NodeGenerators;
+using DevExpress.ExpressApp.Validation;
+using DevExpress.Persistent.Base;
+using DevExpress.Persistent.BaseImpl.EF;
+using DevExpress.Persistent.BaseImpl.EF.PermissionPolicy;
+using XAFApp.Module.BusinessObjects;
+using Updater = XAFApp.Module.DatabaseUpdate.Updater;
 
 namespace XAFApp.Module;
 
@@ -19,23 +21,26 @@ public sealed class XAFAppModule : ModuleBase {
     // XAFAppModule
     // 
 
-    AdditionalExportedTypes.Add(typeof(XAFApp.Module.BusinessObjects.ApplicationUser));
-    AdditionalExportedTypes.Add(typeof(DevExpress.Persistent.BaseImpl.EF.PermissionPolicy.PermissionPolicyRole));
-    AdditionalExportedTypes.Add(typeof(DevExpress.Persistent.BaseImpl.EF.ModelDifference));
-    AdditionalExportedTypes.Add(typeof(DevExpress.Persistent.BaseImpl.EF.ModelDifferenceAspect));
+    AdditionalExportedTypes.Add(typeof(ApplicationUser));
+    AdditionalExportedTypes.Add(typeof(PermissionPolicyRole));
+    AdditionalExportedTypes.Add(typeof(ModelDifference));
+    AdditionalExportedTypes.Add(typeof(ModelDifferenceAspect));
 
-    RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.SystemModule.SystemModule));
-    RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Security.SecurityModule));
-    RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Objects.BusinessClassLibraryCustomizationModule));
-    RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Validation.ValidationModule));
-    RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.ReportsV2.ReportsModuleV2));
+    RequiredModuleTypes.Add(typeof(SystemModule));
+    RequiredModuleTypes.Add(typeof(SecurityModule));
+    RequiredModuleTypes.Add(typeof(BusinessClassLibraryCustomizationModule));
+    RequiredModuleTypes.Add(typeof(ValidationModule));
+    RequiredModuleTypes.Add(typeof(ReportsModuleV2));
+    RequiredModuleTypes.Add(typeof(OfficeModule));
 
-    DevExpress.ExpressApp.Security.SecurityModule.UsedExportedTypes = DevExpress.Persistent.Base.UsedExportedTypes.Custom;
+    SecurityModule.UsedExportedTypes = UsedExportedTypes.Custom;
   }
+
   public override IEnumerable<ModuleUpdater> GetModuleUpdaters(IObjectSpace objectSpace, Version versionFromDB) {
-    ModuleUpdater updater = new DatabaseUpdate.Updater(objectSpace, versionFromDB);
-    return new ModuleUpdater[] { updater };
+    ModuleUpdater updater = new Updater(objectSpace, versionFromDB);
+    return new[] { updater };
   }
+
   public override void Setup(XafApplication application) {
     base.Setup(application);
     // Manage various aspects of the application UI and behavior at the module level.

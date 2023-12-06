@@ -40,6 +40,9 @@ public class Startup {
           options.ReportDataType = typeof(ReportDataV2);
           options.ReportStoreMode = ReportStoreModes.XML;
         })
+        .AddOffice(options => {
+          options.RichTextMailMergeDataType = typeof(RichTextMailMergeData);
+        })
         .Add<XAFAppModule>()
         .Add<XAFAppBlazorModule>();
       builder.ObjectSpaceProviders
