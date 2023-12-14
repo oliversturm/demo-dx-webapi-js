@@ -1,19 +1,18 @@
 <script>
-  import DataTable from "$lib/DataTable.svelte";
-  import { displayStateChanged } from "$lib/dataLoading.js";
   import { page } from "$app/stores";
-  import ShowRowDocumentActionButtons from "$lib/ShowRowDocumentActionButtons.svelte";
+
+  import DataTable from "$lib/DataTable.svelte";
+  import MailMergeRowActionButtons from "$lib/MailMergeRowActionButtons.svelte";
+  import { displayStateChanged } from "$lib/dataLoading.js";
 
   export let data;
-  $: ({ dataSource, schema, displayState, mailMergeDocumentId, error } = data);
+  $: ({ displayState, dataSource: mailMergeItems, schema, error } = data);
 
   const fields = {
     Name: { class: "text-left", filter: "string" },
-    Price: { class: "text-right", filter: "number" }
+    TargetTypeFullName: { class: "text-left", filter: "string" }
   };
-
-  const classCaptionPlaceholder = "Sale Products";
-
+  const classCaptionPlaceholder = "Mail Merge Items";
 </script>
 
 <h2 class="font-bold text-xl">
@@ -24,14 +23,12 @@
   <div class="error">{error}</div>
 {:else}
   <DataTable
-    {dataSource}
+    dataSource={mailMergeItems}
     {fields}
-    {schema}
     {displayState}
+    {schema}
     on:displayStateChanged={displayStateChanged($page.url.pathname)}
-    editBaseUrl="/saleProducts/edit"
-    extraRowActionButtons={ShowRowDocumentActionButtons}
-    extraRowActionProps={{ mailMergeDocumentId }}
+    extraRowActionButtons={MailMergeRowActionButtons}
   />
 {/if}
 

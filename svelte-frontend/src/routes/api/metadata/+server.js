@@ -11,7 +11,11 @@ const parser = new XMLParser({
 });
 
 export async function GET({ fetch }) {
-	const result = await fetch('http://webapi:5273/api/odata/$metadata')
+	const result = await fetch('http://webapi:5273/api/odata/$metadata', {
+		headers: {
+			Accept: 'application/xml'
+		}
+	})
 		.then((res) => res.text())
 		.then((xmlString) => parser.parse(xmlString));
 

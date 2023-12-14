@@ -64,6 +64,7 @@ const getClassCaptionPromise = (fetch, className, lang) =>
 			: undefined
 	)
 		.then((res) => res.text())
+		.then((classCaption) => (classCaption === className ? '' : classCaption))
 		.then((classCaption) => ({ $$classCaption: classCaption }));
 
 const getMemberCaptionPromise = (fetch, className, memberName, lang) =>
