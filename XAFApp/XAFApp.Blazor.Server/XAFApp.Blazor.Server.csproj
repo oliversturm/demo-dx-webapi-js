@@ -17,12 +17,12 @@
         </Content>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="DevExpress.Drawing.Skia" Version="23.2.2-beta"/>
-        <PackageReference Include="DevExpress.ExpressApp.Blazor" Version="23.2.2-beta"/>
-        <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="23.2.2-beta"/>
-        <PackageReference Include="DevExpress.ExpressApp.ReportsV2.Blazor" Version="23.2.2-beta"/>
-        <PackageReference Include="DevExpress.ExpressApp.Office.Blazor" Version="23.2.2-beta"/>
-        <PackageReference Include="DevExpress.ExpressApp.Validation.Blazor" Version="23.2.2-beta"/>
+        <PackageReference Include="DevExpress.Drawing.Skia" Version="23.2.3"/>
+        <PackageReference Include="DevExpress.ExpressApp.Blazor" Version="23.2.3"/>
+        <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="23.2.3"/>
+        <PackageReference Include="DevExpress.ExpressApp.ReportsV2.Blazor" Version="23.2.3"/>
+        <PackageReference Include="DevExpress.ExpressApp.Office.Blazor" Version="23.2.3"/>
+        <PackageReference Include="DevExpress.ExpressApp.Validation.Blazor" Version="23.2.3"/>
         <PackageReference Include="StringTemplate4" Version="4.0.8"/>
     </ItemGroup>
     <ItemGroup>
