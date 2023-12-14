@@ -51,15 +51,6 @@ public class MailMergeController : ControllerBase {
     exporter.LoadDocument(temp);
     exporter.ExportToPdf(output);
 
-    // Shorter attempt that does not work right at the moment.
-    // MailMergeOptions mergeOptions = server.Document.CreateMailMergeOptions();
-    // mergeOptions.MergeMode = MergeMode.NewSection;
-    //
-    // server.Document.MailMerge(mergeOptions, server.Document);
-    // server.Document.MailMerge(server.Document);
-    // MemoryStream output = new();
-    // server.ExportToPdf(output);
-
     output.Seek(0, SeekOrigin.Begin);
     return File(output, "application/pdf", "MailMerge.pdf");
   }
