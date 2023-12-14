@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   sql:
     image: mcr.microsoft.com/azure-sql-edge
@@ -25,6 +23,14 @@ services:
       SQL_SA_PASSWD: ${SQL_SA_PASSWD}
     ports:
       - '5273:5273'
+    develop:
+      watch:
+        - path: ./XAFApp/XAFApp.WebApi
+          action: sync+restart
+          target: /src/XAFApp.WebApi
+        - path: ./XAFApp/XAFApp.Module
+          action: sync+restart
+          target: /src/XAFApp.Module
 
   blazor:
     build:
@@ -39,6 +45,14 @@ services:
       SQL_SA_PASSWD: ${SQL_SA_PASSWD}
     ports:
       - '5274:5274'
+    develop:
+      watch:
+        - path: ./XAFApp/XAFApp.Blazor.Server
+          action: sync+restart
+          target: /src/XAFApp.Blazor.Server
+        - path: ./XAFApp/XAFApp.Module
+          action: sync+restart
+          target: /src/XAFApp.Module
 
   svelte:
     build: ./svelte-frontend
@@ -46,8 +60,11 @@ services:
       - webapi
     ports:
       - '5173:5173'
-    volumes:
-      - ./svelte-frontend:/src
+    develop:
+      watch:
+        - action: sync
+          path: ./svelte-frontend
+          target: /src
 
 volumes:
   sql-data:
