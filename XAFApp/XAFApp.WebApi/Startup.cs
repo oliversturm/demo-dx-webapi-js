@@ -68,6 +68,7 @@ public class Startup {
         // options.BusinessObject<YourBusinessObject>();
         options.BusinessObject<SaleProduct>();
         options.BusinessObject<ReportDataV2>();
+        options.BusinessObject<RichTextMailMergeData>();
       });
 
       builder.Modules
