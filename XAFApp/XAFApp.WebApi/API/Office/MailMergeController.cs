@@ -42,13 +42,10 @@ public class MailMergeController : ControllerBase {
     MailMergeOptions mergeOptions = server.Document.CreateMailMergeOptions();
     mergeOptions.MergeMode = MergeMode.NewSection;
 
-    MemoryStream temp = new();
-    server.Document.MailMerge(mergeOptions, temp, DocumentFormat.Doc);
-    temp.Seek(0, SeekOrigin.Begin);
-
     using RichEditDocumentServer exporter = new();
+    server.Document.MailMerge(mergeOptions, exporter.Document);
+
     MemoryStream output = new();
-    exporter.LoadDocument(temp);
     exporter.ExportToPdf(output);
 
     output.Seek(0, SeekOrigin.Begin);
