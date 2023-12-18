@@ -1,23 +1,11 @@
 import { json } from '@sveltejs/kit';
-import { XMLParser } from 'fast-xml-parser';
-
-// Could prerender to prevent extra roundtrips to the XML data
-// export const prerender = true;
-
-const parser = new XMLParser({
-	ignoreAttributes: false,
-	attributeNamePrefix: '',
-	attributesGroupName: '@_attributes'
-});
 
 export async function GET({ fetch }) {
-	const result = await fetch('http://webapi:5273/api/odata/$metadata', {
+	const result = await fetch('http://webapi:5273/api/odata/$metadata?$format=json', {
 		headers: {
-			Accept: 'application/xml'
+			Accept: 'application/json'
 		}
-	})
-		.then((res) => res.text())
-		.then((xmlString) => parser.parse(xmlString));
+	}).then((res) => res.json());
 
 	return json(result);
 }

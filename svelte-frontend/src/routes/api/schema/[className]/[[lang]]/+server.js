@@ -1,50 +1,50 @@
 import { json } from '@sveltejs/kit';
 import mergeAll from 'lodash/fp/mergeAll';
 
-const getObjectOrList = (o, pred) => {
-	if (!o) return undefined;
+const getPropertyInfo = (() => {
+	const oneFieldKey = (et) => {
+		if (et['$Key'] && Array.isArray(et['$Key']) && et['$Key'].length === 1) {
+			return et['$Key'][0];
+		} else return;
+	};
 
-	// It's possible that o is an array of objects, but it could also just be one
-	// object. The predicate must either match the object, or we use it to find
-	// the object in the array.
+	const splitTypeName = (fullTypeName) => {
+		const lastDot = fullTypeName.lastIndexOf('.');
+		return [fullTypeName.slice(0, lastDot), fullTypeName.slice(lastDot + 1)];
+	};
 
-	return Array.isArray(o) ? o.find(pred) : pred(o) ? o : undefined;
-};
+	const recurse = (data, namespace, entityName) => {
+		if (data[namespace] && data[namespace][entityName]) {
+			const baseResult = data[namespace][entityName].$BaseType
+				? recurse(data, ...splitTypeName(data[namespace][entityName].$BaseType))
+				: { propertyNames: [], idField: '' };
 
-const getPropertyInfo = (fetch, namespace, entityName) =>
-	fetch('/api/metadata')
-		.then((res) => res.json())
-		.then((data) => {
-			const schemaParent = data['edmx:Edmx']['edmx:DataServices']['Schema'];
-
-			const schema = getObjectOrList(
-				schemaParent,
-				(el) => el['@_attributes']?.Namespace === namespace
-			);
-			if (!schema)
-				throw new Error(`No schema found for namespace ${namespace} and entity ${entityName}`);
-
-			const et = getObjectOrList(
-				schema.EntityType,
-				(el) => el['@_attributes']?.Name === entityName
-			);
-			if (!et)
-				throw new Error(`No entity type found for namespace ${namespace} and entity ${entityName}`);
-
-			// I guess technically we should check that the Property field is an array
-			// and not an object again. But I won't bother because I expect the implementation
-			// of the service to change so it can deliver JSON -- and the current weird
-			// structure is only because the service is returning XML.
-			const result = {
-				propertyNames: et.Property?.map((p) => p['@_attributes']?.Name).filter((pn) => !!pn),
-				idField: et.Key?.PropertyRef['@_attributes']?.Name
+			return {
+				propertyNames: [
+					baseResult.propertyNames,
+					Object.keys(data[namespace][entityName]).filter((k) => !k.startsWith('$'))
+				].flat(),
+				idField: oneFieldKey(data[namespace][entityName]) || baseResult.idField
 			};
-			return result;
-		})
-		.catch((err) => {
-			console.error(err);
+		} else {
+			console.error(`No schema found for namespace ${namespace} and entity ${entityName}`);
 			return { propertyNames: [], idField: '' };
-		});
+		}
+	};
+
+	let jsonData;
+
+	return (fetch, namespace, entityName) =>
+		(jsonData
+			? Promise.resolve(jsonData)
+			: fetch('/api/metadata')
+					.then((res) => res.json())
+					.then((data) => {
+						jsonData = data;
+						return data;
+					})
+		).then((data) => recurse(data, namespace, entityName));
+})();
 
 // These functions use encodeURIComponent only so that
 // we don't accidentally send an invalid URL. Valid
