@@ -7,6 +7,7 @@ using DevExpress.XtraRichEdit.API.Native;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
+using System.Net.Mime;
 
 namespace XAFApp.WebApi.API.Office;
 
@@ -49,6 +50,6 @@ public class MailMergeController : ControllerBase {
     exporter.ExportToPdf(output);
 
     output.Seek(0, SeekOrigin.Begin);
-    return File(output, "application/pdf", "MailMerge.pdf");
+    return File(output, MediaTypeNames.Application.Pdf);
   }
 }
