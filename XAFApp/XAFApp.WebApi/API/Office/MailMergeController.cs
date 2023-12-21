@@ -1,6 +1,6 @@
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
-using DevExpress.ExpressApp.WebApi.Services;
+using DevExpress.ExpressApp.Core;
 using DevExpress.Persistent.BaseImpl.EF;
 using DevExpress.XtraRichEdit;
 using DevExpress.XtraRichEdit.API.Native;
@@ -13,11 +13,20 @@ namespace XAFApp.WebApi.API.Office;
 
 [Authorize]
 [Route("api/[controller]")]
-public class MailMergeController : ControllerBase {
-  private readonly IDataService dataService;
+public class MailMergeController : ControllerBase, IDisposable {
+  private readonly IObjectSpaceFactory objectSpaceFactory;
 
-  public MailMergeController(IDataService dataService) {
-    this.dataService = dataService;
+  public MailMergeController(IObjectSpaceFactory objectSpaceFactory) {
+    this.objectSpaceFactory = objectSpaceFactory;
+  }
+
+  private IObjectSpace objectSpace;
+
+  public void Dispose() {
+    if (objectSpace != null) {
+      objectSpace.Dispose();
+      objectSpace = null;
+    }
   }
 
   [HttpGet("MergeDocument({mailMergeId})/{objectIds?}")]
@@ -25,7 +34,7 @@ public class MailMergeController : ControllerBase {
     [FromRoute] string mailMergeId,
     [FromRoute] string? objectIds) {
     // Fetch the mail merge data by the given ID
-    IObjectSpace objectSpace = dataService.GetObjectSpace<RichTextMailMergeData>();
+    objectSpace = objectSpaceFactory.CreateObjectSpace<RichTextMailMergeData>();
     RichTextMailMergeData mailMergeData =
       objectSpace.GetObjectByKey<RichTextMailMergeData>(new Guid(mailMergeId));
 
